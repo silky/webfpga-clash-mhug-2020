@@ -15,5 +15,9 @@ led3:
 	clash --verilog Led3.hs && \
 		./bin/synthesis.py fpga_top verilog/Led3/fpga_top/fpga_top.v pinmap.pcf
 
+led4:
+	clash --verilog Led4.hs && \
+		./bin/synthesis.py fpga_top verilog/Led4/fpga_top/fpga_top.v pinmap.pcf
+
 flash:
 	webfpga flash bitstream.bin
