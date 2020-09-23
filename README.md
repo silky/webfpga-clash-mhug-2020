@@ -5,7 +5,7 @@ Examples are around the onboard LED and Neopixel.
 
 ### Requirements
 
-- Clash (tested on v1.2.4)
+- [Clash](https://clash-lang.org/) (tested on v1.2.4)
 
 In order to deploy to the WebFPGA board, you can either use their
 [WebIDE](https://webfpga.io/), or run the entire setup locally.
@@ -23,5 +23,3 @@ Open up `clash.clashi` and try loading something: `:l Led1.hs`
 You can test generating verilog like: `:verilog`, and then the `Makefile` has
 steps to actually generate the bistream and flash it, supposing you have the
 device and the dependencies.
-
-
