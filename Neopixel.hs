@@ -44,8 +44,9 @@ topEntity clock =
 type Colour = (Int, Int, Int)
 
 
+-- r,g,b
 colour :: Colour
-colour = (0, 0, 10)
+colour = (10, 0, 0) 
 
 
 asBits :: Colour -> Vec 24 Bool
@@ -107,8 +108,12 @@ neoT (State {..}) _ = (nextState, out)
     -- 900 ns = 14.5 clock ticks = 15 ticks
     -- total                     = 21 ticks
 
-    oneHighTicks = 15
-    lowHighTicks = 6
+    oneHighTicks = ceiling (900 / 62.5) -- 15
+    lowHighTicks = ceiling (350 / 62.5) -- 6
+
+    -- Just used for the total
+    oneLowTicks  = ceiling (350 / 62.5) -- 6
+    total        = oneHighTicks + oneLowTicks
 
     stillColouring = index < 24
     bit            = colourBits !! min index 23
@@ -129,7 +134,7 @@ neoT (State {..}) _ = (nextState, out)
 
     -- Next bit if we've emitted enough
     (index', highCounter'', lowCounter'')
-      | highCounter + lowCounter == 21
+      | highCounter + lowCounter == total
           = (index + 1, 0, 0)
       | otherwise
           = (index, highCounter', lowCounter')
@@ -140,6 +145,7 @@ neoT (State {..}) _ = (nextState, out)
           , highCounter = highCounter''
           , lowCounter  = lowCounter''
           }
+
 
 --  Other ideas:
 --
