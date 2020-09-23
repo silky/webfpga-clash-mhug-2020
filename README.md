@@ -13,6 +13,15 @@ In order to deploy to the WebFPGA board, you can either use their
 I've hacked together a working environment by using the [webfpga
 cli](https://github.com/webfpga/cli.git) to flash, and running a
 local hacked version of [icestorm
-server](https://github.com/silky/icestorm-server).
+server](https://github.com/silky/icestorm-server), and copying "synthesis.py"
+from that repo.
+
+### Trying something
+
+Open up `clash.clashi` and try loading something: `:l Led1.hs`
+
+You can test generating verilog like: `:verilog`, and then the `Makefile` has
+steps to actually generate the bistream and flash it, supposing you have the
+device and the dependencies.
 
 
