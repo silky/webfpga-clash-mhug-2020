@@ -2,4 +2,6 @@
 *.hi
 *.dyn*
 
+bitstream.bin
+
 verilog/

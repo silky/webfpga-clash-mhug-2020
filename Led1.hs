@@ -13,4 +13,4 @@ import Clash.Prelude
 topEntity 
   :: Signal System Bool
   -> Signal System Bool
-topEntity s = s
+topEntity s = not <$> s
