@@ -1,12 +1,19 @@
-.PHONY: all
+.PHONY: nothing
 
-all: led1 led2
+nothing: 
+	@echo Pick an option!
 
 led1:
-	./bin/synthesis.py fpga_top verilog/Led1/fpga_top/fpga_top.v pinmap.pcf
+	clash --verilog Led1.hs && \
+		./bin/synthesis.py fpga_top verilog/Led1/fpga_top/fpga_top.v pinmap.pcf
 
 led2:
-	./bin/synthesis.py fpga_top verilog/Led2/fpga_top/fpga_top.v pinmap.pcf
+	clash --verilog Led2.hs && \
+		./bin/synthesis.py fpga_top verilog/Led2/fpga_top/fpga_top.v pinmap.pcf
+
+led3:
+	clash --verilog Led3.hs && \
+		./bin/synthesis.py fpga_top verilog/Led3/fpga_top/fpga_top.v pinmap.pcf
 
 flash:
 	webfpga flash bitstream.bin

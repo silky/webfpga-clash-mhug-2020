@@ -1,8 +1,10 @@
-module Led2 where
+{-# LANGUAGE NumericUnderscores #-}
+
+module Led3 where
 
 import Clash.Prelude
 
--- Mealy-style
+-- Let's use state to blink every second.
 
 {-# ANN topEntity
   (Synthesize
@@ -21,7 +23,7 @@ topEntity
 topEntity clock reset' button =
   exposeClockResetEnable f clock reset enable i
   where
-    f = mealy ledT ()
+    f = mealy ledT (False, 0)
     
     -- Initial input
     i = button
@@ -35,12 +37,19 @@ topEntity clock reset' button =
     reset  = unsafeFromLowPolarity reset'
 
 
-type State = ()
+-- Now our state tracks the ledState, and the 
+-- blink counter.
+type State = (Bool, Unsigned 32)
 
--- Mealy machine for our computing the LED state. 
+
 ledT :: State
      -> Bool
      -> (State, Bool) 
-ledT _ buttonState = ((), ledState)
+ledT (ledState, counter) buttonState = (nextState, ledState)
   where
-    ledState = buttonState
+    max   = 16_000_000 -- 16 MHz clock
+    atMax = counter == max
+
+    nextState
+      | atMax     = ( not ledState , 0           )
+      | otherwise = ( ledState     , counter + 1 )
