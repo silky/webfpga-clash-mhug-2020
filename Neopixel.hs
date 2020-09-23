@@ -107,6 +107,9 @@ neoT (State {..}) _ = (nextState, out)
     -- 900 ns = 14.5 clock ticks = 15 ticks
     -- total                     = 21 ticks
 
+    oneHighTicks = 15
+    lowHighTicks = 6
+
     stillColouring = index < 24
     bit            = colourBits !! min index 23
 
@@ -114,11 +117,11 @@ neoT (State {..}) _ = (nextState, out)
       if stillColouring
          then if bit
                   -- If it's a 1, we're high for 15 and low for 6
-                  then if highCounter < 15
+                  then if highCounter < oneHighTicks
                             then (high , highCounter + 1 , lowCounter    )
                             else (low  , highCounter     , lowCounter + 1)
                   -- If it's a 0, we're high for 6 and low for 15
-                  else if highCounter < 6
+                  else if highCounter < lowHighTicks
                             then (high , highCounter + 1 , lowCounter    )
                             else (low  , highCounter     , lowCounter + 1)
          else ( low, 0, 0 )
