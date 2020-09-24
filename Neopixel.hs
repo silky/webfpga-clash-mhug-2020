@@ -2,8 +2,8 @@
 {-# LANGUAGE RecordWildCards    #-}
 
 -- TODO:
---  - This doesn't seem to display inbetween colours. I'm not sure why? Maybe
---  it's a bug in my code somewhere?
+-- I've fixed at least one off-by-one error; now I can change the brightness;
+-- I'm still not sure it's totally fixed though.
 
 
 -- Reference:
