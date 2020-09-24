@@ -11,12 +11,11 @@
 
 module Neopixel where
 
-import qualified Prelude as Prelude
 import Clash.Prelude
-import Data.Bits
-import Clash.Explicit.Testbench
+import Data.Bits (testBit)
 
 -- Let's now push some colours to the Neopixel.
+
 
 {-# ANN topEntity
   (Synthesize
@@ -31,7 +30,7 @@ topEntity
 topEntity clock =
   exposeClockResetEnable f clock reset enable i
   where
-    f = mealy neoT initialState
+    f = mealy (neoT colourBits) initialState
     
     -- Initial input
     i = pure ()
@@ -46,7 +45,7 @@ type Colour = (Int, Int, Int)
 
 -- r,g,b
 colour :: Colour
-colour = (10, 0, 0) 
+colour = (0, 0, 8) 
 
 
 asBits :: Colour -> Vec 24 Bool
@@ -78,27 +77,29 @@ colourBits = asBits colour
 --  0 = High for 350 ns, low for 900 ns
 --  1 = High for 900 ns, low for 350 ns
 
+
 data State  = State
-  { output      :: Bit         -- ^ Our output
-  , index       :: Unsigned 32 -- ^ Index of next colour to send
+  { index       :: Unsigned 32 -- ^ Index of next colour to send
   , highCounter :: Unsigned 32 -- ^ High counter
   , lowCounter  :: Unsigned 32 -- ^ Low counter
+  , nextBit     :: Maybe Bool  -- ^ Was just using this for debugging.
   } deriving (Show, Generic, NFDataX)
 
 
 initialState :: State
 initialState = State
-  { output      = low
-  , index       = 0
+  { index       = 0
   , highCounter = 0
   , lowCounter  = 0
+  , nextBit     = Nothing
   }
 
 
-neoT :: State
+neoT :: Vec 24 Bool
+     -> State
      -> ()
      -> (State, Bit) 
-neoT (State {..}) _ = (nextState, out)
+neoT colourBits (State {..}) _ = (nextState, out')
   where
     -- Clock is 16MHz 
     --    -> So after 16_000_000 ticks, 1 second has elapsed.
@@ -116,9 +117,13 @@ neoT (State {..}) _ = (nextState, out)
     total        = oneHighTicks + oneLowTicks
 
     stillColouring = index < 24
-    bit            = colourBits !! min index 23
 
-    (out, highCounter', lowCounter') = 
+    thisBit = colourBits !! min index 23
+    nextBit = if index < 22
+                 then Just (colourBits !! (index + 1))
+                 else Nothing
+
+    nextData bit =
       if stillColouring
          then if bit
                   -- If it's a 1, we're high for 15 and low for 6
@@ -131,19 +136,21 @@ neoT (State {..}) _ = (nextState, out)
                             else (low  , highCounter     , lowCounter + 1)
          else ( low, 0, 0 )
 
+    (out, highCounter', lowCounter') = nextData thisBit
 
-    -- Next bit if we've emitted enough
-    (index', highCounter'', lowCounter'')
+    (out', index', highCounter'', lowCounter'')
       | highCounter + lowCounter == total
-          = (index + 1, 0, 0)
+          -- We always need to start with high and an increment of the high
+          -- counter.
+          = ( high, index + 1, 1, 0 )
       | otherwise
-          = (index, highCounter', lowCounter')
+          = ( out, index, highCounter', lowCounter' )
 
     nextState = State
-          { output      = out
-          , index       = index'
+          { index       = index'
           , highCounter = highCounter''
           , lowCounter  = lowCounter''
+          , nextBit     = nextBit
           }
 
 
